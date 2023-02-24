@@ -1,15 +1,31 @@
-
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { GetServerSideProps } from 'next';
+import { useSession, signIn, signOut, getSession } from 'next-auth/react'
 import ChatMessages from './Messages';
-import { useReducer, useRef } from 'react';
-
-type Message = { message: string, username: string, createtime?: string }
+import { useEffect, useReducer, useRef } from 'react';
+import { io } from 'socket.io-client';
+let socket;
+type Message = { message: string, username?: string, createtime?: string }
 type Action = { type: string, message: Message }
 type State = Message[]
+
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  const userinfo = await getSession(context).then((session) => session?.user)
+  if (userinfo) {
+    const user = userinfo.name
+    return {
+      props: { username: user }
+    }
+
+  }
+  else return {
+    props: {}
+  }
+}
+
+
 function reducer(state: State, action: Action): State {
-  // console.log(action.type)
-  // console.log(action.message)
-  // console.log("state: ", state)
+
   switch (action.type) {
     case 'add':
       const date = new Date()
@@ -20,27 +36,48 @@ function reducer(state: State, action: Action): State {
   }
 
 }
-export default function Home({ messages }: { messages: Message }) {
+// export default function Home({ messages }: { messages: Message }) {
+export default function Home({ username }: { username?: string }) {
   const inputvalue = useRef<HTMLInputElement>(null);
   const formref = useRef<HTMLFormElement>(null);
-  const { data: session } = useSession();
-  const username = session?.user?.name;
   const [themessages, dispatch] = useReducer(reducer, [])
-  const handleAdd = () => {
-    if (inputvalue.current?.value) {
-      // console.log(inputvalue.current?.value)
-      dispatch({ type: 'add', message: { message: inputvalue.current.value, username: username } });
-      formref.current?.reset();
+  const handleEnter = (e: React.KeyboardEvent<HTMLFormElement> | React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAdd()
     }
   }
-  if (session) {
+  const handleAdd = () => {
+    if (inputvalue.current?.value) {
+      socket.emit('message', JSON.stringify({ message: inputvalue.current?.value, username: username }))
+      dispatch({ type: 'add', message: { message: inputvalue.current?.value, username: username } });
+      formref.current?.reset();
+
+    }
+  }
+
+  if (username) {
+    useEffect(() => {
+      const socketinitalizer = async () => {
+        await fetch('/api/socket')
+        socket = io();
+        socket.on('connect', () => {
+          // console.log('connected',)
+        })
+        socket.on('update-message', (msg) => {
+          dispatch({ type: 'add', message: JSON.parse((msg)) })
+        })
+      }
+      socketinitalizer()
+    }, [])
+
+
     return (
       <div>
         <div
           style={{ height: '650px' }}
           className={'pt-2 space-y-1 grid justify-center'}>
           {
-
             themessages.map((themessage, index) => (
               <ChatMessages
                 key={index}
@@ -65,8 +102,10 @@ export default function Home({ messages }: { messages: Message }) {
           <div
           >
             <form ref={formref}
+              onKeyDown={(e) => handleEnter(e)}
               className={'text-center justify-center pt-2 gap-2 space-x-1'}>
               <input
+                onKeyDown={(e) => handleEnter(e)}
                 ref={inputvalue}
                 type={'text'}
                 placeholder={'...'}
@@ -82,7 +121,6 @@ export default function Home({ messages }: { messages: Message }) {
             </form>
           </div>
         </div>
-
       </div>
     )
   }

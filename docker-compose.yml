@@ -1,0 +1,7 @@
+version: '3'
+services:
+  app:
+    images: chapar 
+    build: .
+    ports:
+      - 3000:3000

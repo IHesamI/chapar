@@ -11,10 +11,10 @@ export default function ChatMessages(
     const time = new Date()
     return (
         <div
-            style={{ height: 'fit-content' }}
-            className={'border border-sky-500 rounded-lg max-w-lg p-2 space-y-2'}
+            style={{ height: 'fit-content' ,width:'fit-content'}}
+            className={'border border-sky-500 rounded-lg max-w-lg p-2 space-y-2 backdrop-blur-sm  bg-white/30 '}
         >
-            <p className={'font-sans text-lg'}>{message} </p>
+            <p className={'font-sans text-lg break-words'}>{message} </p>
             <div
                 className={'flex flex-row justify-between'}>
                 <p className={'font-serif text-sm'}>{authorUsername}</p>

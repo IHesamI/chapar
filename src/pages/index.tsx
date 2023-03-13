@@ -1,9 +1,9 @@
 import { GetServerSideProps } from 'next';
-import { useSession, signIn, signOut, getSession } from 'next-auth/react'
+import {  getSession } from 'next-auth/react'
 import ChatMessages from './Messages';
 import { useEffect, useReducer, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
-import Wall from 'public/Wall.jpg';
+import Login from '@/components/Login';
 let socket: Socket;
 type Message = { message: string, username?: string, createtime?: string }
 type Action = { type: string, message: Message }
@@ -75,12 +75,11 @@ export default function Home({ username }: { username?: string }) {
 
     return (
       <div
-      className='bg-cover'
+        className='bg-cover'
         style={{ backgroundImage: `url(Wall.jpg)` }}>
         <div
-
           style={{ height: '650px', alignContent: 'baseline' }}
-          className={'pt-2 space-y-1 grid justify-center gap-2'}>
+          className={'pt-2 space-y-1 grid justify-center gap-2 overflow-y-auto'}>
           {
             themessages.map((themessage, index) => (
               <ChatMessages
@@ -132,9 +131,6 @@ export default function Home({ username }: { username?: string }) {
   }
 
   return (<>
-    Not signed in<br />
-    <button
-      onClick={() => signIn()}
-    >Sign in</button>
+    <Login />
   </>)
 }

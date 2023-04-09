@@ -1,5 +1,5 @@
 
-const Menu = ({ image_src, username }: { image_src?: string, username?: string }) => {
+const Menu = ({ image_src, username ,setuser}: { image_src?: string, username?: string, setuser?:any }) => {
     return (
         <div className="w-max flex flex-col" >
             <div className="image-username-div"  >
@@ -9,13 +9,12 @@ const Menu = ({ image_src, username }: { image_src?: string, username?: string }
             <div className="flex flex-col" >
                 <div className={'chaticon'}>
                     <img className="w-10 h-10 rounded-full" src={`${image_src}`} alt="Avatar" />
-                    <button>Konohagakure Group</button>
+                    <button
+                    onClick={()=>{setuser('Konohagakure Group')}}>Konohagakure Group</button>
                 </div>
                 <div className={'chaticon'}>
                     <img className="w-10 h-10 rounded-full" src={`${image_src}`} alt="Avatar" />
-                    <button
-                    // className={'chaticon'}
-                    >Naruto</button>
+                    <button onClick={()=>{setuser('Naruto')}}>Naruto</button>
                 </div>
             </div>
         </div>

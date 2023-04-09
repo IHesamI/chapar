@@ -1,7 +1,7 @@
 import { GetServerSideProps } from 'next';
 import { getSession } from 'next-auth/react'
 import ChatMessages from './Messages';
-import { useEffect, useReducer, useRef } from 'react';
+import { useEffect, useReducer, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
 import Login from '@/components/Login';
 import Menu from '@/components/LeftMenu';
@@ -33,11 +33,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 
 export default function Home({ username, image_src }: { username?: string, image_src?: string }) {
+  const [user, setuser] = useState(null)
   if (username) {
     return (
       <div className='flex'>
-        <Menu image_src={image_src} username={username} />
-        <Chat username={''} />
+        <Menu image_src={image_src} username={username} setuser={setuser} />
+        <Chat username={username} user={user} />
       </div>
     )
   }

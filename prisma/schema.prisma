@@ -11,11 +11,28 @@ model user {
   id           Int       @id @default(autoincrement())
   username     String    @db.VarChar(25)
   email        String
-  usermessages message[]
+  usermessages message[] @relation("usermessages")
+  chat1        chat[]    @relation("userone")
+  chat2        chat[]    @relation("usertwo")
+}
+
+model chat {
+  id        Int  @id @default(autoincrement())
+  userone   user @relation(name: "userone", fields: [useroneid], references: [id])
+  useroneid Int
+
+  usertwo   user @relation(name: "usertwo", fields: [usertwoid], references: [id])
+  usertwoid Int
+
+  messages message[]
 }
 
 model message {
-  id     Int  @id @default(autoincrement())
-  user   user @relation(fields: [userid], references: [id])
-  userid Int
+  id           Int    @id @default(autoincrement())
+  text         String
+  Senderuser   user?  @relation(name: "usermessages", fields: [Senderuserid], references: [id])
+  Senderuserid Int?
+
+  chat    chat? @relation(fields: [chat_id], references: [id])
+  chat_id Int?
 }

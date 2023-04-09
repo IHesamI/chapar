@@ -4,7 +4,7 @@ import { getSession } from 'next-auth/react'
 import { useEffect, useReducer, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 let socket: Socket;
-type Message = { message: string, username?: string, createtime?: string }
+type Message = { message: string, username?: string | null, createtime?: string }
 type Action = { type: string, message: Message }
 type State = Message[]
 
@@ -21,7 +21,8 @@ function reducer(state: State, action: Action): State {
     }
 
 }
-const Chat = ({ username }: { username: string }) => {
+const Chat = ({ username, user }: { username?: string, user: string | null }) => {
+    // console.log(username)
     const inputvalue = useRef<HTMLInputElement>(null);
     const formref = useRef<HTMLFormElement>(null);
     const [themessages, dispatch] = useReducer(reducer, [])
@@ -31,19 +32,27 @@ const Chat = ({ username }: { username: string }) => {
             handleAdd()
         }
     }
-    // useEffect(() => {
-    //     const socketinitalizer = async () => {
-    //         await fetch('/api/socket')
-    //         socket = io();
-    //         socket.on('connect', () => {
-    //             // console.log('connected',)
-    //         })
-    //         socket.on('update-message', (msg) => {
-    //             dispatch({ type: 'add', message: JSON.parse((msg)) })
-    //         })
-    //     }
-    //     socketinitalizer()
-    // }, [])
+    useEffect(() => {
+        // console.log(user)
+        const getmessage = () => {
+            const body = JSON.stringify({
+                'username': username,
+                'user': user
+            })
+
+            const req: RequestInit = {
+                method:'POST',
+                body:body
+
+            }
+            fetch('api/getmessages', req
+            ).then((response) => response.json())
+                .then(res => console.log(res))
+        }
+        getmessage()
+        // console.log(username)
+
+    }, [user])
 
     const handleAdd = () => {
         if (inputvalue.current?.value) {

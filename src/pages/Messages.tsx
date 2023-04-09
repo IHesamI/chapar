@@ -6,7 +6,7 @@ export default function ChatMessages(
     }: {
         message?: string,
         creationTime?: string,
-        authorUsername?: string,
+        authorUsername?: string|null,
     }) {
     const time = new Date()
     return (
